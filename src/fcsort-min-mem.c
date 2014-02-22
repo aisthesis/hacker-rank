@@ -12,14 +12,10 @@
 #define WORD_SIZE 10
 #define POSITIONS 100
 
-struct word {
-    int position;
-    char term[WORD_SIZE + 1];
-};
-
-void counting_sort(char *sorted[], struct word words[], size_t size) {
+void sort(char *sorted[], int positions[], char words[][WORD_SIZE + 1], char dash[], size_t size) {
     int buckets[POSITIONS];
     int i;
+    int word_count = size / 2;
 
     // initialize buckets
     for (i = 0; i < POSITIONS; i++) {
@@ -28,7 +24,7 @@ void counting_sort(char *sorted[], struct word words[], size_t size) {
 
     // count positions
     for (i = 0; i < size; i++) {
-        buckets[words[i].position]++;
+        buckets[positions[i]]++;
     }
 
     // convert to running totals
@@ -37,28 +33,32 @@ void counting_sort(char *sorted[], struct word words[], size_t size) {
     }
 
     // feed words into sorted array
-    for (i = size - 1; i >= 0; i--) {
-        sorted[--buckets[words[i].position]] = words[i].term;
+    for (i = word_count - 1; i >= 0; i--) {
+        sorted[--buckets[positions[i + word_count]]] = words[i];
+    }
+    for (i = word_count - 1; i >= 0; i--) {
+        sorted[--buckets[positions[i]]] = dash;
     }
 }
 
 int main() {
     int n, i, max;
     char garbage[WORD_SIZE + 1];
+    char dash[] = "-";
 
     scanf("%d", &n);
-    struct word words[n];
+    max = n / 2;
+    int positions[n];
+    char words[max][WORD_SIZE + 1];
     char *sorted[n];
 
-    max = n / 2;
     for (i = 0; i < max; i++) {
-        scanf("%d %10s", &words[i].position, garbage);
-        strcpy(words[i].term, "-");
+        scanf("%d %10s", &positions[i], garbage);
     }
-    for (; i < n; i++) {
-        scanf("%d %10s", &words[i].position, words[i].term);
+    for (i = 0; i < max; i++) {
+        scanf("%d %10s", &positions[i + max], words[i]);
     }
-    counting_sort(sorted, words, n);
+    sort(sorted, positions, words, dash, n);
     for (i = 0; i < n; i++) {
         printf("%s ", sorted[i]);
     }
