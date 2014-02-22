@@ -3,6 +3,6 @@
  * Test for compiling a simple C program
  */
 int main() {
-    printf("Hello world\n");
+    printf("Hello world!\n");
     return 0;
 }
