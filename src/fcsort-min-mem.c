@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
 /**
  * Solution to Full Counting Sort problem
@@ -9,13 +10,13 @@
  * @since 2014-02-21
  */
 
-#define WORD_SIZE 10
+#define CSTRING_SIZE 11
 #define POSITIONS 100
 
-void sort(char *sorted[], int positions[], char words[][WORD_SIZE + 1], char dash[], size_t size) {
+void sort(char *sorted_one[], char *sorted_two[], int dash_positions[], 
+        int word_positions[], char *words[], char dash[], size_t size) {
     int buckets[POSITIONS];
     int i;
-    int word_count = size / 2;
 
     // initialize buckets
     for (i = 0; i < POSITIONS; i++) {
@@ -24,7 +25,8 @@ void sort(char *sorted[], int positions[], char words[][WORD_SIZE + 1], char das
 
     // count positions
     for (i = 0; i < size; i++) {
-        buckets[positions[i]]++;
+        buckets[dash_positions[i]]++;
+        buckets[word_positions[i]]++;
     }
 
     // convert to running totals
@@ -32,35 +34,59 @@ void sort(char *sorted[], int positions[], char words[][WORD_SIZE + 1], char das
         buckets[i] += buckets[i - 1];
     }
 
-    // feed words into sorted array
-    for (i = word_count - 1; i >= 0; i--) {
-        sorted[--buckets[positions[i + word_count]]] = words[i];
+    // feed words into sorted arrays
+    // word positions
+    for (i = size - 1; i >= 0; i--) {
+        if (--buckets[word_positions[i]] >= size) {
+            sorted_two[buckets[word_positions[i]] - size] = words[i];
+        } else {
+            sorted_one[buckets[word_positions[i]]] = words[i];
+        }
     }
-    for (i = word_count - 1; i >= 0; i--) {
-        sorted[--buckets[positions[i]]] = dash;
+    // dash positions
+    for (i = size - 1; i >= 0; i--) {
+        if (--buckets[dash_positions[i]] >= size) {
+            sorted_two[buckets[dash_positions[i]] - size] = dash;
+        } else {
+            sorted_one[buckets[dash_positions[i]]] = dash;
+        }
     }
 }
 
 int main() {
     int n, i, max;
-    char garbage[WORD_SIZE + 1];
+    // int trash;
+    char garbage[CSTRING_SIZE];
     char dash[] = "-";
 
     scanf("%d", &n);
     max = n / 2;
-    int positions[n];
-    char words[max][WORD_SIZE + 1];
-    char *sorted[n];
+    // arrays have to be divided up for test case where n = 1M
+    int word_positions[max], dash_positions[max];
 
+    char *words[max];
     for (i = 0; i < max; i++) {
-        scanf("%d %10s", &positions[i], garbage);
+        words[i] = (char*) malloc(CSTRING_SIZE);
+    }
+    char **sorted_one = (char**) malloc(max * sizeof(char*));
+    char **sorted_two = (char**) malloc(max * sizeof(char*));
+    for (i = 0; i < max; i++) {
+        scanf("%d %10s", &dash_positions[i], garbage);
     }
     for (i = 0; i < max; i++) {
-        scanf("%d %10s", &positions[i + max], words[i]);
+        scanf("%d %10s", &word_positions[i], words[i]);
     }
-    sort(sorted, positions, words, dash, n);
-    for (i = 0; i < n; i++) {
-        printf("%s ", sorted[i]);
+    sort(sorted_one, sorted_two, dash_positions, word_positions, words, dash, max);
+    for (i = 0; i < max; i++) {
+        printf("%s ", sorted_one[i]);
     }
+    for (i = 0; i < max; i++) {
+        printf("%s ", sorted_two[i]);
+    }
+    for (i = 0; i < max; i++) {
+        free(words[i]);
+    }
+    free(sorted_one);
+    free(sorted_two);
     return 0;
 }
