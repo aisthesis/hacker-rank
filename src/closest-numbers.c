@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 
 /**
  * Solution to Closest Numbers on HackerRank
@@ -40,23 +41,52 @@ void quick_sort(int values[], int begin, int end) {
     quick_sort(values, p + 1, end);
 }
 
-int main() {
-    int values1[] = { 6, -1, 3, 5, 0 },
-        values2[] = { 3, 2, 1, 0 },
+/**
+ * Find the minimum difference between consecutive
+ * values in a sorted array
+ */
+int min_diff(int values[], size_t size) {
+    int diff = values[1] - values[0],
+        max = size - 1,
         i;
 
-    quick_sort(values1, 0, 4);
-    quick_sort(values2, 0, 3);
-    for (i = 0; i < 5; ++i) {
-        printf("%d ", values1[i]);
+    for (i = 1; i < max; ++i) {
+        if (values[i + 1] < values[i] + diff) {
+            diff = values[i + 1] - values[i];
+        }
     }
-    printf("\n");
-    for (i = 0; i < 4; ++i) {
-        printf("%d ", values2[i]);
-    }
-    printf("\n");
-    //int n;
+    return diff;
+}
 
-    //scanf("%d", &n);
+void show_pairs_with_diff(int values[], int diff, size_t size) {
+    int max = size - 1,
+        first = 1,
+        i;
+
+    for (i = 0; i < max; ++i) {
+        if (values[i] + diff == values[i + 1]) {
+            if (first) {
+                first = 0;
+                printf("%d %d", values[i], values[i + 1]);
+            } else {
+                printf(" %d %d", values[i], values[i + 1] );
+            }
+        }
+    }
+}
+
+int main() {
+    int n, i, *values, diff;
+
+    scanf("%d", &n);
+    values = (int*) malloc(n * sizeof(int));
+    for (i = 0; i < n; ++i) {
+        scanf("%d", &values[i]);
+    }
+    quick_sort(values, 0, n - 1);
+    diff = min_diff(values, n);
+    show_pairs_with_diff(values, diff, n);
+    
+    free(values);
     return 0;
 }
